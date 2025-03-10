@@ -70,4 +70,3 @@ export const useTrafficData = (locationId) => {
   };
 };
 
-//i changed here too
