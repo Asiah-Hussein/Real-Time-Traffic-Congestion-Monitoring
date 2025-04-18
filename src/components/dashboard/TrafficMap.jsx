@@ -1,57 +1,77 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { trafficService } from '../../services/trafficService';
+import React, { useEffect, useRef } from 'react';
 
-const TrafficMap = ({ location }) => {
+const LOCATIONS = {
+  'city-center': {
+    name: 'City Center',
+    coordinates: { lat: 51.5074, lng: -0.1278 }
+  },
+  'north-highway': {
+    name: 'North Highway',
+    coordinates: { lat: 51.5504, lng: -0.1277 }
+  },
+  'south-bridge': {
+    name: 'South Bridge',
+    coordinates: { lat: 51.4974, lng: -0.1278 }
+  }
+};
+
+const TrafficMap = ({ location = 'city-center' }) => {
   const mapRef = useRef(null);
-  const [map, setMap] = useState(null);
-  const [trafficLayer, setTrafficLayer] = useState(null);
-
-  const locationCoordinates = {
-    'city-center': { lat: 51.5074, lng: -0.1278 },
-    'north-highway': { lat: 51.5504, lng: -0.1277 },
-    'south-bridge': { lat: 51.4974, lng: -0.1278 }
-  };
+  const API_KEY = 'AIzaSyCUZf5MaYtnPxACrTb0l8K01cjMzy6pCkM';
 
   useEffect(() => {
-    const initMap = async () => {
-      try {
-        const google = await trafficService.initGoogleMaps();
-        
-        const mapInstance = new google.Map(mapRef.current, {
-          center: locationCoordinates[location] || locationCoordinates['city-center'],
-          zoom: 13,
-          styles: [
-            { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-            { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-            { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] }
-          ]
-        });
-
-        const trafficLayerInstance = new google.TrafficLayer();
-        trafficLayerInstance.setMap(mapInstance);
-
-        setMap(mapInstance);
-        setTrafficLayer(trafficLayerInstance);
-      } catch (error) {
-        console.error('Error initializing map:', error);
-      }
+    // Function to initialize map
+    const initMap = () => {
+      // Get the coordinates for the selected location
+      const coordinates = LOCATIONS[location]?.coordinates || { lat: 51.5074, lng: -0.1278 };
+      
+      // Create map instance
+      const mapInstance = new window.google.maps.Map(mapRef.current, {
+        center: coordinates,
+        zoom: 13
+      });
+      
+      // Add traffic layer
+      const trafficLayer = new window.google.maps.TrafficLayer();
+      trafficLayer.setMap(mapInstance);
+      
+      // Add a marker for the selected location
+      new window.google.maps.Marker({
+        position: coordinates,
+        map: mapInstance,
+        title: LOCATIONS[location]?.name || 'Selected Location'
+      });
     };
 
-    if (!map) {
-      initMap();
+    // Load Google Maps API if not already loaded
+    if (!window.google) {
+      // Create the script element
+      const googleMapScript = document.createElement('script');
+      googleMapScript.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places`;
+      googleMapScript.async = true;
+      
+      // Set up the callback
+      window.initMap = initMap;
+      googleMapScript.onload = initMap;
+      
+      // Append the script to the DOM
+      document.head.appendChild(googleMapScript);
     } else {
-      map.setCenter(locationCoordinates[location] || locationCoordinates['city-center']);
+      // If API is already loaded, just initialize the map
+      initMap();
     }
-  }, [location, map]);
+
+    // Cleanup
+    return () => {
+      window.initMap = null;
+    };
+  }, [location]);
 
   return (
     <div className="w-full h-96 rounded-lg overflow-hidden shadow-lg">
-      <div ref={mapRef} className="w-full h-full" />
+      <div ref={mapRef} className="w-full h-full"></div>
     </div>
   );
 };
 
 export default TrafficMap;
-
-
-//i changed here
