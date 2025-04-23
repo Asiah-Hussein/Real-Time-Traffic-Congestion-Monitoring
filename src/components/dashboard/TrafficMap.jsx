@@ -1,46 +1,45 @@
 import React, { useEffect, useRef } from 'react';
-
-const LOCATIONS = {
-  'city-center': {
-    name: 'City Center',
-    coordinates: { lat: 51.5074, lng: -0.1278 }
-  },
-  'north-highway': {
-    name: 'North Highway',
-    coordinates: { lat: 51.5504, lng: -0.1277 }
-  },
-  'south-bridge': {
-    name: 'South Bridge',
-    coordinates: { lat: 51.4974, lng: -0.1278 }
-  }
-};
+import { LOCATIONS } from '../../utils/constants';
+import { AlertTriangle } from 'lucide-react';
 
 const TrafficMap = ({ location = 'city-center' }) => {
   const mapRef = useRef(null);
-  const API_KEY = 'AIzaSyCUZf5MaYtnPxACrTb0l8K01cjMzy6pCkM';
+  const [mapError, setMapError] = useState(false);
+  const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
   useEffect(() => {
     // Function to initialize map
     const initMap = () => {
-      // Get the coordinates for the selected location
-      const coordinates = LOCATIONS[location]?.coordinates || { lat: 51.5074, lng: -0.1278 };
-      
-      // Create map instance
-      const mapInstance = new window.google.maps.Map(mapRef.current, {
-        center: coordinates,
-        zoom: 13
-      });
-      
-      // Add traffic layer
-      const trafficLayer = new window.google.maps.TrafficLayer();
-      trafficLayer.setMap(mapInstance);
-      
-      // Add a marker for the selected location
-      new window.google.maps.Marker({
-        position: coordinates,
-        map: mapInstance,
-        title: LOCATIONS[location]?.name || 'Selected Location'
-      });
+      try {
+        // Get the coordinates for the selected location
+        const coordinates = LOCATIONS[location]?.coordinates || { lat: 51.5074, lng: -0.1278 };
+        
+        // Create map instance
+        const mapInstance = new window.google.maps.Map(mapRef.current, {
+          center: coordinates,
+          zoom: 13,
+          styles: [
+            { featureType: "road", elementType: "geometry.fill", stylers: [{ visibility: "on" }] },
+            { featureType: "road", elementType: "geometry.stroke", stylers: [{ visibility: "on" }] }
+          ]
+        });
+        
+        // Add traffic layer
+        const trafficLayer = new window.google.maps.TrafficLayer();
+        trafficLayer.setMap(mapInstance);
+        
+        // Add a marker for the selected location
+        new window.google.maps.Marker({
+          position: coordinates,
+          map: mapInstance,
+          title: LOCATIONS[location]?.name || 'Selected Location'
+        });
+        
+        setMapError(false);
+      } catch (error) {
+        console.error('Error initializing map:', error);
+        setMapError(true);
+      }
     };
 
     // Load Google Maps API if not already loaded
@@ -53,6 +52,10 @@ const TrafficMap = ({ location = 'city-center' }) => {
       // Set up the callback
       window.initMap = initMap;
       googleMapScript.onload = initMap;
+      googleMapScript.onerror = () => {
+        console.error('Failed to load Google Maps script');
+        setMapError(true);
+      };
       
       // Append the script to the DOM
       document.head.appendChild(googleMapScript);
@@ -65,10 +68,22 @@ const TrafficMap = ({ location = 'city-center' }) => {
     return () => {
       window.initMap = null;
     };
-  }, [location]);
+  }, [location, API_KEY]);
+
+  if (mapError) {
+    return (
+      <div className="w-full h-96 bg-gray-100 rounded-lg flex items-center justify-center">
+        <div className="text-center p-6">
+          <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+          <h3 className="text-lg font-medium mb-2">Map loading error</h3>
+          <p className="text-gray-600">We're unable to load the traffic map at this time. Please try again later.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full h-96 rounded-lg overflow-hidden shadow-lg">
+    <div className="w-full h-96 rounded-lg overflow-hidden shadow-lg" data-testid="map-container">
       <div ref={mapRef} className="w-full h-full"></div>
     </div>
   );

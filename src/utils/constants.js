@@ -1,39 +1,55 @@
-export const LOCATIONS = {
-  'city-center': {
-    name: 'City Center',
-    coordinates: { lat: 51.5074, lng: -0.1278 }
+// Add this to your existing constants
+export const TRAFFIC_PATTERNS = {
+  weekday: {
+    0: 0.2,  // 12 AM
+    1: 0.1,
+    2: 0.1,
+    3: 0.1,
+    4: 0.2,
+    5: 0.5,
+    6: 1.2,  // Morning rush
+    7: 1.5,
+    8: 1.8,
+    9: 1.4,
+    10: 1.0,
+    11: 0.9,
+    12: 1.0, // Noon
+    13: 1.0,
+    14: 0.9,
+    15: 1.1,
+    16: 1.5, // Evening rush
+    17: 1.8,
+    18: 1.6,
+    19: 1.2,
+    20: 0.9,
+    21: 0.7,
+    22: 0.5,
+    23: 0.3  // 11 PM
   },
-  'north-highway': {
-    name: 'North Highway',
-    coordinates: { lat: 51.5504, lng: -0.1277 }
-  },
-  'south-bridge': {
-    name: 'South Bridge',
-    coordinates: { lat: 51.4974, lng: -0.1278 }
+  weekend: {
+    0: 0.4,  // 12 AM
+    1: 0.3,
+    2: 0.2,
+    3: 0.1,
+    4: 0.1,
+    5: 0.2,
+    6: 0.3,
+    7: 0.4,
+    8: 0.6,
+    9: 0.8,
+    10: 1.0, // Shopping hours
+    11: 1.2,
+    12: 1.4, // Noon
+    13: 1.5,
+    14: 1.4,
+    15: 1.3,
+    16: 1.2,
+    17: 1.1,
+    18: 1.0,
+    19: 0.9,
+    20: 0.8,
+    21: 0.7,
+    22: 0.6,
+    23: 0.5  // 11 PM
   }
 };
-
-export const UPDATE_INTERVAL = 5000; // 5 seconds
-export const PREDICTION_INTERVAL = 15000; // 15 seconds
-export const HISTORICAL_DATA_POINTS = 12;
-
-export const CHART_COLORS = {
-  congestion: '#8884d8',
-  speed: '#82ca9d',
-  prediction: '#ff7300'
-};
-
-export const MAP_STYLES = [
-  {
-    elementType: "geometry",
-    stylers: [{ color: "#242f3e" }]
-  },
-  {
-    elementType: "labels.text.stroke",
-    stylers: [{ color: "#242f3e" }]
-  },
-  {
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#746855" }]
-  }
-];

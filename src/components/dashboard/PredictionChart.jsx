@@ -1,43 +1,54 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { formatDateTime } from '../../utils/helpers';
+import { predictionService } from '../../services/predictionService';
 
-const PredictionChart = ({ data }) => {
-  // Generate prediction data based on current trends
-  const generatePredictions = () => {
-    if (!data || data.length < 2) return [];
-    
-    const lastPoint = data[data.length - 1];
-    const trend = calculateTrend(data);
-    
-    return Array.from({ length: 6 }, (_, i) => {
-      const time = new Date(lastPoint.timestamp);
-      time.setMinutes(time.getMinutes() + (i + 1) * 15);
-      
-      return {
-        timestamp: time.toISOString(),
-        predictedCongestion: Math.max(0, Math.min(100, 
-          lastPoint.congestionLevel + trend.congestion * (i + 1))),
-        predictedSpeed: Math.max(0, 
-          lastPoint.averageSpeed + trend.speed * (i + 1))
-      };
-    });
-  };
+const PredictionChart = ({ data, locationId }) => {
+  const [predictions, setPredictions] = useState([]);
+  const [reliability, setReliability] = useState(null);
 
-  const calculateTrend = (data) => {
-    const n = data.length;
-    if (n < 2) return { congestion: 0, speed: 0 };
-    
-    return {
-      congestion: (data[n-1].congestionLevel - data[n-2].congestionLevel) / 2,
-      speed: (data[n-1].averageSpeed - data[n-2].averageSpeed) / 2
-    };
-  };
+  useEffect(() => {
+    if (data && data.length >= 2) {
+      // Generate predictions based on current data
+      const newPredictions = predictionService.generatePredictions(data, locationId, 6);
+      setPredictions(newPredictions);
 
-  const predictions = generatePredictions();
+      // Calculate reliability if we have past predictions and actual data
+      if (window.pastPredictions && window.pastPredictions.length > 0) {
+        const rel = predictionService.calculateReliability(
+          window.pastPredictions, 
+          data.slice(-window.pastPredictions.length)
+        );
+        setReliability(rel);
+      }
+
+      // Store current predictions for future reliability assessment
+      window.pastPredictions = newPredictions;
+    }
+  }, [data, locationId]);
+
+  if (!predictions.length) {
+    return (
+      <div className="bg-white p-4 rounded-lg shadow flex items-center justify-center h-64">
+        <p className="text-gray-500">Insufficient data for predictions</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white p-4 rounded-lg shadow">
+      {reliability && (
+        <div className="mb-4 flex space-x-4">
+          <div className="p-2 bg-blue-50 rounded">
+            <p className="text-xs text-gray-500">Congestion Prediction Accuracy</p>
+            <p className="text-lg font-semibold">{Math.round(reliability.congestionAccuracy)}%</p>
+          </div>
+          <div className="p-2 bg-green-50 rounded">
+            <p className="text-xs text-gray-500">Speed Prediction Accuracy</p>
+            <p className="text-lg font-semibold">{Math.round(reliability.speedAccuracy)}%</p>
+          </div>
+        </div>
+      )}
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={predictions}>
@@ -46,9 +57,14 @@ const PredictionChart = ({ data }) => {
               dataKey="timestamp" 
               tickFormatter={formatDateTime}
             />
-            <YAxis />
+            <YAxis yAxisId="congestion" domain={[0, 100]} />
+            <YAxis yAxisId="speed" orientation="right" />
             <Tooltip 
               labelFormatter={(timestamp) => formatDateTime(timestamp)}
+              formatter={(value, name) => {
+                if (name === 'Predicted Congestion') return [`${Math.round(value)}%`, name];
+                return [`${Math.round(value)} mph`, name];
+              }}
             />
             <Legend />
             <Line 
@@ -57,6 +73,7 @@ const PredictionChart = ({ data }) => {
               stroke="#ff7300" 
               name="Predicted Congestion" 
               strokeDasharray="5 5"
+              yAxisId="congestion"
             />
             <Line 
               type="monotone" 
@@ -64,6 +81,7 @@ const PredictionChart = ({ data }) => {
               stroke="#82ca9d" 
               name="Predicted Speed" 
               strokeDasharray="5 5"
+              yAxisId="speed"
             />
           </LineChart>
         </ResponsiveContainer>
