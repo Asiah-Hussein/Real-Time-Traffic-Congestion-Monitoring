@@ -53,5 +53,3 @@ export const trafficService = {
 };
 
 
-
-// i changed here 
