@@ -1,3 +1,15 @@
+/**
+ * @component TrafficMonitor
+ * @description Main dashboard component that displays real-time traffic monitoring data.
+ * It fetches and displays traffic data, renders status cards, traffic maps, and data charts.
+ * 
+ * @prop {string} [initialLocation='city-center'] - The initial location to display
+ * @returns {JSX.Element} The rendered traffic monitoring dashboard
+ * 
+ * @example
+ * <TrafficMonitor initialLocation="north-highway" />
+ */
+
 import React, { useState, useEffect } from 'react';
 import { generateMockData, generateHistoricalData } from '../../services/mockData';
 import StatusCards from './StatusCards';

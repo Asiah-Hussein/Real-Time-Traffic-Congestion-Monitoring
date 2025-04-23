@@ -1,3 +1,25 @@
+/**
+ * @namespace trafficService
+ * @description Service responsible for fetching and processing traffic data.
+ * In a production environment, this would connect to real API endpoints.
+ */
+
+/**
+ * Initializes Google Maps API for the application
+ * @function initGoogleMaps
+ * @memberof trafficService
+ * @returns {Promise<google.maps>} A promise that resolves to the Google Maps API
+ * @throws {Error} If Google Maps fails to load
+ */
+
+/**
+ * Fetches current traffic data for a specific location
+ * @function getCurrentTrafficData
+ * @memberof trafficService
+ * @param {string} locationId - The location identifier
+ * @returns {Promise<TrafficData>} The current traffic data
+ */
+
 import { generateMockData, generateHistoricalData } from './mockData';
 
 const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
