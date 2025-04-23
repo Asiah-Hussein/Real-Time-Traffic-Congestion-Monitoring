@@ -28,4 +28,63 @@
   .map-container {
     @apply w-full h-96 rounded-lg overflow-hidden shadow-lg;
   }
+
+  .card-equal-height {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-equal-height .chart-container {
+    flex-grow: 1;
+  }
+}
+
+/* Responsive typography and spacing for mobile */
+@media (max-width: 640px) {
+  h1.text-2xl {
+    font-size: 1.25rem;
+  }
+
+  h2.text-lg {
+    font-size: 1rem;
+  }
+
+  .p-4 {
+    padding: 0.75rem;
+  }
+
+  .gap-6 {
+    gap: 1rem;
+  }
+
+  .mb-6 {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Ensure chart containers maintain layout on smaller screens */
+@media (max-width: 1023px) {
+  .grid-cols-1 > div {
+    margin-bottom: 1.5rem;
+  }
+
+  .grid-cols-1 > div > h2 {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Consistent heights */
+.h-full {
+  height: 100%;
+}
+
+.h-64 {
+  min-height: 16rem;
+}
+
+/* Fix grid layout at larger breakpoints */
+@media (min-width: 1024px) {
+  .lg\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

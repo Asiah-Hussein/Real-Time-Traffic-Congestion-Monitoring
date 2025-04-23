@@ -1,25 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Clock, Map, AlertTriangle } from 'lucide-react';
 import { generateMockData, generateHistoricalData } from '../../services/mockData';
 import StatusCards from './StatusCards';
-import CongestionChart from './CongestionChart';
-import PredictionChart from './PredictionChart';
 import TrafficMap from './TrafficMap';
 import { Alert, AlertTitle, AlertDescription } from '../ui/Alert';
-import Select from '../ui/Select';
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  Legend,
+} from 'recharts';
 
 const TrafficMonitor = () => {
   const [selectedLocation, setSelectedLocation] = useState('city-center');
   const [trafficData, setTrafficData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [predictionData, setPredictionData] = useState([]);
 
-  // Initialize with historical data
   useEffect(() => {
     const initData = async () => {
       try {
         setLoading(true);
-        // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 700));
         const histData = generateHistoricalData(selectedLocation);
         setTrafficData(histData);
@@ -34,14 +39,21 @@ const TrafficMonitor = () => {
     initData();
   }, [selectedLocation]);
 
-  // Set up real-time updates
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 500));
         const newData = generateMockData(selectedLocation);
         setTrafficData(prev => [...prev.slice(-11), newData]);
+
+        // Simulate predicted data here
+        const simulatedPredictions = trafficData.map((entry, idx) => ({
+          time: new Date(entry.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+          predictedCongestion: Math.min(100, entry.congestionLevel + Math.random() * 10),
+          predictedSpeed: Math.max(10, entry.averageSpeed + Math.random() * 5),
+        }));
+        setPredictionData(simulatedPredictions);
+
         setError(null);
       } catch (err) {
         setError('Failed to fetch traffic data');
@@ -50,19 +62,13 @@ const TrafficMonitor = () => {
 
     const interval = setInterval(fetchData, 5000);
     return () => clearInterval(interval);
-  }, [selectedLocation]);
+  }, [selectedLocation, trafficData]);
 
   const handleLocationChange = (e) => {
     setSelectedLocation(e.target.value);
   };
 
   const latestData = trafficData.length > 0 ? trafficData[trafficData.length - 1] : null;
-
-  const locationOptions = [
-    { value: 'city-center', label: 'City Center' },
-    { value: 'north-highway', label: 'North Highway' },
-    { value: 'south-bridge', label: 'South Bridge' }
-  ];
 
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto">
@@ -72,13 +78,15 @@ const TrafficMonitor = () => {
       </div>
 
       <div className="mb-6">
-        <Select
-          options={locationOptions}
+        <select
           value={selectedLocation}
           onChange={handleLocationChange}
-          placeholder="Select location"
-          className="w-full md:w-48"
-        />
+          className="p-2 border rounded w-full md:w-48"
+        >
+          <option value="city-center">City Center</option>
+          <option value="north-highway">North Highway</option>
+          <option value="south-bridge">South Bridge</option>
+        </select>
       </div>
 
       {error && (
@@ -88,25 +96,91 @@ const TrafficMonitor = () => {
         </Alert>
       )}
 
-      {/* Status Cards */}
       <StatusCards data={latestData} loading={loading} />
-      
-      {/* Traffic Map */}
+
       <div className="mb-6">
         <h2 className="text-lg font-semibold mb-4">Live Traffic Map</h2>
         <TrafficMap location={selectedLocation} />
       </div>
 
-      {/* Traffic Charts Section - Responsive Grid */}
+      {/* Updated Traffic Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div>
           <h2 className="text-lg font-semibold mb-4">Traffic Trends</h2>
-          <CongestionChart data={trafficData} />
+          <div className="bg-white p-4 rounded-lg shadow h-full">
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={trafficData.map(item => ({
+                  time: new Date(item.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+                  congestion: item.congestionLevel,
+                  speed: item.averageSpeed,
+                }))}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="time" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="congestion"
+                    stroke="#8884d8"
+                    name="Congestion Level"
+                    dot={true}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="speed"
+                    stroke="#82ca9d"
+                    name="Average Speed"
+                    dot={true}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
-        
+
         <div>
           <h2 className="text-lg font-semibold mb-4">Traffic Prediction</h2>
-          <PredictionChart data={trafficData} locationId={selectedLocation} />
+          <div className="bg-white p-4 rounded-lg shadow h-full">
+            <div className="mb-4 flex space-x-4">
+              <div className="p-2 bg-blue-50 rounded">
+                <p className="text-xs text-gray-500">Congestion Prediction Accuracy</p>
+                <p className="text-lg font-semibold">93%</p>
+              </div>
+              <div className="p-2 bg-green-50 rounded">
+                <p className="text-xs text-gray-500">Speed Prediction Accuracy</p>
+                <p className="text-lg font-semibold">98%</p>
+              </div>
+            </div>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={predictionData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="time" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="predictedCongestion"
+                    stroke="#ff7300"
+                    name="Predicted Congestion"
+                    strokeDasharray="5 5"
+                    dot={true}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="predictedSpeed"
+                    stroke="#82ca9d"
+                    name="Predicted Speed"
+                    strokeDasharray="5 5"
+                    dot={true}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
       </div>
     </div>

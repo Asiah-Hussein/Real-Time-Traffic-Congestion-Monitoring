@@ -3,7 +3,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { formatDateTime } from '../../utils/helpers';
 import { predictionService } from '../../services/predictionService';
 
-const PredictionChart = ({ data, locationId }) => {
+const PredictionChart = ({ data, locationId = 'city-center' }) => {
   const [predictions, setPredictions] = useState([]);
   const [reliability, setReliability] = useState(null);
 
@@ -57,8 +57,7 @@ const PredictionChart = ({ data, locationId }) => {
               dataKey="timestamp" 
               tickFormatter={formatDateTime}
             />
-            <YAxis yAxisId="congestion" domain={[0, 100]} />
-            <YAxis yAxisId="speed" orientation="right" />
+            <YAxis />
             <Tooltip 
               labelFormatter={(timestamp) => formatDateTime(timestamp)}
               formatter={(value, name) => {
@@ -73,7 +72,6 @@ const PredictionChart = ({ data, locationId }) => {
               stroke="#ff7300" 
               name="Predicted Congestion" 
               strokeDasharray="5 5"
-              yAxisId="congestion"
             />
             <Line 
               type="monotone" 
@@ -81,7 +79,6 @@ const PredictionChart = ({ data, locationId }) => {
               stroke="#82ca9d" 
               name="Predicted Speed" 
               strokeDasharray="5 5"
-              yAxisId="speed"
             />
           </LineChart>
         </ResponsiveContainer>

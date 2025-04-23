@@ -1,39 +1,23 @@
-Traffic Congestion Monitoring System
+# Traffic Congestion Monitoring and Analysis System
 
-Project Overview:
+## Overview
+A real-time traffic monitoring system that provides traffic congestion data, predictions, and analytics. Developed as part of the CMP6200/DIG6200 Individual Undergraduate Project at Birmingham City University.
 
-Real-time traffic congestion monitoring and analysis system developed as part of the CMP6200/DIG6200 Individual Undergraduate Project 2024–2025.
+## Features
+- Real-time traffic monitoring dashboard
+- Interactive traffic map with Google Maps integration
+- Historical traffic data visualization
+- Predictive modeling for future traffic conditions
+- Advanced analytics with data export capabilities
+- Customizable system settings
 
+## Technologies Used
+- React for the frontend interface
+- Recharts for data visualization
+- Google Maps API for geographic data
+- Tailwind CSS for styling
 
-Features:
-- Real-time traffic monitoring
-- Congestion level analysis
-- Predictive modeling
-- Historical data tracking
-- Multi-location support
-
-Technology Stack:
-- React
-- Recharts for visualization
-- TailwindCSS for styling
-- Google Maps API (planned)
-
-Getting Started:
-- Clone the repository
-- Install dependencies: npm install
-- Start development server: npm start
-
-Project Structure:
-- src/components: React components
-- src/services: Data and API services
-- src/utils: Utility functions
-- src/hooks: Custom React hooks
-- docs: Project documentation
-
-Development Status:
-Basic dashboard implementation = Done
-Mock data integration = Done 
-Real-time updates = Done
-Google Maps API integration = Done 
-Historical data analysis = Done
-Predictive modeling implementation = Done
+## Getting Started
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Create a `.env` file and add your Google Maps API key:

@@ -1,6 +1,3 @@
-// Add these imports at the top
-import { TRAFFIC_PATTERNS } from '../utils/constants';
-
 const calculateTrend = (data, field) => {
   if (!data || data.length < 2) return 0;
   const recentData = data.slice(-5); // Use last 5 data points
@@ -26,11 +23,34 @@ const getTimeBasedFactor = (timestamp, locationId) => {
   
   // Weekend pattern
   if (dayOfWeek === 0 || dayOfWeek === 6) {
-    return TRAFFIC_PATTERNS.weekend[hour] || 1;
+    // Weekend hours (simplified)
+    return {
+      // Early morning
+      0: 0.4, 1: 0.3, 2: 0.2, 3: 0.1, 4: 0.1, 5: 0.2,
+      // Morning
+      6: 0.3, 7: 0.4, 8: 0.6, 9: 0.8,
+      // Midday
+      10: 1.0, 11: 1.2, 12: 1.4, 13: 1.5, 14: 1.4, 15: 1.3,
+      // Evening
+      16: 1.2, 17: 1.1, 18: 1.0, 19: 0.9, 
+      // Night
+      20: 0.8, 21: 0.7, 22: 0.6, 23: 0.5
+    }[hour] || 1;
   }
   
   // Weekday pattern
-  return TRAFFIC_PATTERNS.weekday[hour] || 1;
+  return {
+    // Early morning
+    0: 0.2, 1: 0.1, 2: 0.1, 3: 0.1, 4: 0.2, 5: 0.5,
+    // Morning rush
+    6: 1.2, 7: 1.5, 8: 1.8, 9: 1.4,
+    // Midday
+    10: 1.0, 11: 0.9, 12: 1.0, 13: 1.0, 14: 0.9, 15: 1.1,
+    // Evening rush
+    16: 1.5, 17: 1.8, 18: 1.6, 19: 1.2,
+    // Night
+    20: 0.9, 21: 0.7, 22: 0.5, 23: 0.3
+  }[hour] || 1;
 };
 
 export const predictionService = {
@@ -63,7 +83,7 @@ export const predictionService = {
       const predictedSpeed = Math.max(10,
         lastPoint.averageSpeed + 
         speedTrend * (i + 1) * randomFactor * (1 / timeFactor) * timeWeight
-      ));
+      );
       
       return {
         timestamp: predictionTime.toISOString(),
