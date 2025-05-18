@@ -39,7 +39,7 @@ export const useTrafficData = (locationId) => {
       const newData = await trafficService.getCurrentTrafficData(locationId);
       
       setTrafficData(prev => {
-        // Make sure we have data to work with
+        // Making sure i have data to work with
         if (!prev || prev.length === 0) {
           return [newData];
         }

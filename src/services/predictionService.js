@@ -14,12 +14,12 @@ const ML_COEFFICIENTS = {
 };
 
 const WEATHER_IMPACT = {
-  clear: 1.0,
-  cloudy: 1.05,
-  rain: 1.3,
-  snow: 1.8,
-  fog: 1.4,
-  storm: 1.9
+  clear: 1.0,        // No impact
+  cloudy: 1.05,     // Minimal impact
+  rain: 1.3,       // Moderate impact
+  snow: 1.8,      // Significant impact
+  fog: 1.4,      // Moderate impact
+  storm: 1.9    // Severe impact
 };
 
 const SEASONALITY = {
