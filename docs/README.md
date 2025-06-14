@@ -21,3 +21,6 @@ A real-time traffic monitoring system that provides traffic congestion data, pre
 1. Clone the repository
 2. Install dependencies: `npm install`
 3. Create a `.env` file and add your Google Maps API key:
+
+## Author
+Asiah Abdisalam Hussein - Birmingham City University
